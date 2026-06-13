@@ -128,14 +128,14 @@ function Hero() {
               <Phone className="w-4 h-4" /> Call 098138 28549
             </Button></a>
           </div>
-          <div className="mt-10 flex items-center gap-6">
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
             <div className="flex items-center gap-2">
               <div className="flex">
                 {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
               </div>
               <span className="text-sm font-medium">5.0 on Google</span>
             </div>
-            <div className="h-8 w-px bg-border" />
+            <div className="hidden sm:block h-8 w-px bg-border" />
             <div className="text-sm">
               <span className="text-primary font-medium">Open now</span>
               <span className="text-muted-foreground"> · Closes 10 PM</span>
