@@ -113,7 +113,7 @@ function Hero() {
       <div className="max-w-7xl mx-auto px-4 pt-16 pb-20 grid lg:grid-cols-2 gap-12 items-center">
         <div>
           <p className="text-primary font-medium tracking-widest text-xs uppercase">— Parsvnath City · Sector 8 · Sonipat</p>
-          <h1 className="mt-5 text-6xl md:text-7xl text-display">
+          <h1 className="mt-5 text-5xl sm:text-6xl md:text-7xl text-display break-words">
             FORGE THE<br />
             <span className="text-primary">STRONGEST</span><br />
             VERSION OF YOU.
