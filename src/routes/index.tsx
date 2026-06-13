@@ -63,7 +63,7 @@ function Reviews() {
     <section className="py-20 bg-card border-y border-border">
       <div className="max-w-7xl mx-auto px-4">
         <p className="text-primary font-medium tracking-widest text-xs uppercase">— What members say</p>
-        <h2 className="mt-3 text-5xl md:text-6xl text-display">5 STARS.<br />NOT BY ACCIDENT.</h2>
+        <h2 className="mt-3 text-4xl sm:text-5xl md:text-6xl text-display">5 STARS.<br />NOT BY ACCIDENT.</h2>
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {reviews.map((r) => (
             <figure key={r.name} className="rounded-2xl bg-background border border-border p-6 flex flex-col gap-4">
