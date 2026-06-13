@@ -38,7 +38,7 @@ const programs = [
 
 function Landing() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <Nav />
       <Hero />
       <Programs />
@@ -63,7 +63,7 @@ function Reviews() {
     <section className="py-20 bg-card border-y border-border">
       <div className="max-w-7xl mx-auto px-4">
         <p className="text-primary font-medium tracking-widest text-xs uppercase">— What members say</p>
-        <h2 className="mt-3 text-5xl md:text-6xl text-display">5 STARS.<br />NOT BY ACCIDENT.</h2>
+        <h2 className="mt-3 text-4xl sm:text-5xl md:text-6xl text-display">5 STARS.<br />NOT BY ACCIDENT.</h2>
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {reviews.map((r) => (
             <figure key={r.name} className="rounded-2xl bg-background border border-border p-6 flex flex-col gap-4">
@@ -113,7 +113,7 @@ function Hero() {
       <div className="max-w-7xl mx-auto px-4 pt-16 pb-20 grid lg:grid-cols-2 gap-12 items-center">
         <div>
           <p className="text-primary font-medium tracking-widest text-xs uppercase">— Parsvnath City · Sector 8 · Sonipat</p>
-          <h1 className="mt-5 text-6xl md:text-7xl text-display">
+          <h1 className="mt-5 text-5xl sm:text-6xl md:text-7xl text-display break-words">
             FORGE THE<br />
             <span className="text-primary">STRONGEST</span><br />
             VERSION OF YOU.
@@ -128,14 +128,14 @@ function Hero() {
               <Phone className="w-4 h-4" /> Call 098138 28549
             </Button></a>
           </div>
-          <div className="mt-10 flex items-center gap-6">
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
             <div className="flex items-center gap-2">
               <div className="flex">
                 {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
               </div>
               <span className="text-sm font-medium">5.0 on Google</span>
             </div>
-            <div className="h-8 w-px bg-border" />
+            <div className="hidden sm:block h-8 w-px bg-border" />
             <div className="text-sm">
               <span className="text-primary font-medium">Open now</span>
               <span className="text-muted-foreground"> · Closes 10 PM</span>
@@ -162,7 +162,7 @@ function Programs() {
     <section id="programs" className="py-20 bg-card border-y border-border">
       <div className="max-w-7xl mx-auto px-4">
         <p className="text-primary font-medium tracking-widest text-xs uppercase">— What we train</p>
-        <h2 className="mt-3 text-5xl md:text-6xl text-display">PICK YOUR<br />BATTLEGROUND.</h2>
+        <h2 className="mt-3 text-4xl sm:text-5xl md:text-6xl text-display">PICK YOUR<br />BATTLEGROUND.</h2>
         <div className="mt-12 grid sm:grid-cols-2 gap-5">
           {programs.map((p) => (
             <article key={p.title} className="group relative overflow-hidden rounded-2xl aspect-[4/3] shadow-md">
@@ -216,7 +216,7 @@ function Visit() {
       <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-12">
         <div>
           <p className="text-primary font-medium tracking-widest text-xs uppercase">— Hours & location</p>
-          <h2 className="mt-3 text-5xl md:text-6xl text-display">WHEN WE'RE<br />OPEN.</h2>
+          <h2 className="mt-3 text-4xl sm:text-5xl md:text-6xl text-display">WHEN WE'RE<br />OPEN.</h2>
           <div className="mt-8 space-y-5">
             <div className="flex gap-4">
               <Clock className="w-5 h-5 text-primary mt-1 shrink-0" />
@@ -288,7 +288,7 @@ function InquirySection() {
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center">
           <p className="text-primary font-medium tracking-widest text-xs uppercase">— Get in touch</p>
-          <h2 className="mt-3 text-5xl md:text-6xl text-display">SEND US AN<br />INQUIRY.</h2>
+          <h2 className="mt-3 text-4xl sm:text-5xl md:text-6xl text-display">SEND US AN<br />INQUIRY.</h2>
           <p className="mt-4 text-muted-foreground">Drop your details and we'll call you back the same day.</p>
         </div>
 
@@ -339,7 +339,7 @@ function Footer() {
     <footer className="border-t border-border py-10 mt-10">
       <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
         <div>© {new Date().getFullYear()} Titan Fitness, Sonipat. All rights reserved.</div>
-        <a href="/auth" className="hover:text-foreground">Owner login</a>
+        <a href="/owner" className="hover:text-foreground">Owner login</a>
       </div>
     </footer>
   );
