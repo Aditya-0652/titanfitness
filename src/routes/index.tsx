@@ -162,7 +162,7 @@ function Programs() {
     <section id="programs" className="py-20 bg-card border-y border-border">
       <div className="max-w-7xl mx-auto px-4">
         <p className="text-primary font-medium tracking-widest text-xs uppercase">— What we train</p>
-        <h2 className="mt-3 text-5xl md:text-6xl text-display">PICK YOUR<br />BATTLEGROUND.</h2>
+        <h2 className="mt-3 text-4xl sm:text-5xl md:text-6xl text-display">PICK YOUR<br />BATTLEGROUND.</h2>
         <div className="mt-12 grid sm:grid-cols-2 gap-5">
           {programs.map((p) => (
             <article key={p.title} className="group relative overflow-hidden rounded-2xl aspect-[4/3] shadow-md">
