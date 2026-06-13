@@ -43,10 +43,48 @@ function Landing() {
       <Hero />
       <Programs />
       <Pillars />
+      <Reviews />
       <Visit />
       <InquirySection />
       <Footer />
     </div>
+  );
+}
+
+const reviews = [
+  { name: "Rahul Sharma", text: "Best gym in Sonipat — coaches actually care about your form. Lost 8 kg in 3 months.", rating: 5 },
+  { name: "Priya Verma", text: "The Zumba classes are super fun and the steam bath after is just heaven.", rating: 5 },
+  { name: "Aman Singh", text: "Equipment is top-notch and the crossfit sessions are intense. Highly recommend.", rating: 5 },
+  { name: "Neha Kapoor", text: "Personal trainer built a plan that fit my busy schedule. Results in 6 weeks.", rating: 5 },
+];
+
+function Reviews() {
+  return (
+    <section className="py-20 bg-card border-y border-border">
+      <div className="max-w-7xl mx-auto px-4">
+        <p className="text-primary font-medium tracking-widest text-xs uppercase">— What members say</p>
+        <h2 className="mt-3 text-5xl md:text-6xl text-display">5 STARS.<br />NOT BY ACCIDENT.</h2>
+        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {reviews.map((r) => (
+            <figure key={r.name} className="rounded-2xl bg-background border border-border p-6 flex flex-col gap-4">
+              <div className="flex">
+                {[...Array(r.rating)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
+              </div>
+              <blockquote className="text-sm leading-relaxed">"{r.text}"</blockquote>
+              <figcaption className="mt-auto flex items-center gap-3 pt-2 border-t border-border">
+                <div className="w-9 h-9 rounded-full bg-primary/20 text-primary grid place-items-center font-display">
+                  {r.name[0]}
+                </div>
+                <div className="text-sm">
+                  <div className="font-medium">{r.name}</div>
+                  <div className="text-xs text-muted-foreground">Verified member</div>
+                </div>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
