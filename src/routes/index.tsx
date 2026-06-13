@@ -216,7 +216,7 @@ function Visit() {
       <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-12">
         <div>
           <p className="text-primary font-medium tracking-widest text-xs uppercase">— Hours & location</p>
-          <h2 className="mt-3 text-5xl md:text-6xl text-display">WHEN WE'RE<br />OPEN.</h2>
+          <h2 className="mt-3 text-4xl sm:text-5xl md:text-6xl text-display">WHEN WE'RE<br />OPEN.</h2>
           <div className="mt-8 space-y-5">
             <div className="flex gap-4">
               <Clock className="w-5 h-5 text-primary mt-1 shrink-0" />
