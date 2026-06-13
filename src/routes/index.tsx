@@ -288,7 +288,7 @@ function InquirySection() {
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center">
           <p className="text-primary font-medium tracking-widest text-xs uppercase">— Get in touch</p>
-          <h2 className="mt-3 text-5xl md:text-6xl text-display">SEND US AN<br />INQUIRY.</h2>
+          <h2 className="mt-3 text-4xl sm:text-5xl md:text-6xl text-display">SEND US AN<br />INQUIRY.</h2>
           <p className="mt-4 text-muted-foreground">Drop your details and we'll call you back the same day.</p>
         </div>
 
