@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { listInquiries, exportInquiriesXlsx, deleteInquiry } from "@/lib/inquiries.functions";
+import { ensureAdminRole } from "@/lib/admin-bootstrap.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -18,10 +19,14 @@ function AdminPage() {
   const list = useServerFn(listInquiries);
   const exportFn = useServerFn(exportInquiriesXlsx);
   const del = useServerFn(deleteInquiry);
+  const bootstrap = useServerFn(ensureAdminRole);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["inquiries"],
-    queryFn: () => list(),
+    queryFn: async () => {
+      await bootstrap(); // grants admin role on first visit if email matches
+      return list();
+    },
   });
 
   const deleteMut = useMutation({
