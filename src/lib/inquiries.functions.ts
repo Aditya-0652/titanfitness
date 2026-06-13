@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+// Simple owner passcode. The owner uses this on /owner to see inquiries.
+// Change here if you ever want to rotate it.
+const OWNER_PASSCODE = "titan-owner-2026";
 
 const InquirySchema = z.object({
   name: z.string().trim().min(1).max(100),
@@ -25,38 +28,38 @@ export const submitInquiry = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
-  const { data, error } = await context.supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "admin",
-  });
-  if (error || !data) throw new Error("Forbidden");
+const PasscodeSchema = z.object({ passcode: z.string().min(1).max(100) });
+
+function checkPasscode(passcode: string) {
+  if (passcode !== OWNER_PASSCODE) throw new Error("Wrong passcode");
 }
 
-export const listInquiries = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { data, error } = await context.supabase
+export const listInquiries = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => PasscodeSchema.parse(data))
+  .handler(async ({ data }) => {
+    checkPasscode(data.passcode);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
       .from("inquiries")
       .select("*")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return { inquiries: data ?? [] };
+    return { inquiries: rows ?? [] };
   });
 
-export const exportInquiriesXlsx = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { data, error } = await context.supabase
+export const exportInquiriesXlsx = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => PasscodeSchema.parse(data))
+  .handler(async ({ data }) => {
+    checkPasscode(data.passcode);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
       .from("inquiries")
       .select("*")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
 
     const XLSX = await import("xlsx");
-    const rows = (data ?? []).map((r: any) => ({
+    const out = (rows ?? []).map((r: any) => ({
       Date: new Date(r.created_at).toLocaleString(),
       Name: r.name,
       Phone: r.phone,
@@ -64,7 +67,7 @@ export const exportInquiriesXlsx = createServerFn({ method: "GET" })
       Interest: r.interest ?? "",
       Message: r.message ?? "",
     }));
-    const ws = XLSX.utils.json_to_sheet(rows);
+    const ws = XLSX.utils.json_to_sheet(out);
     ws["!cols"] = [{ wch: 20 }, { wch: 22 }, { wch: 16 }, { wch: 28 }, { wch: 18 }, { wch: 50 }];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Inquiries");
@@ -73,11 +76,13 @@ export const exportInquiriesXlsx = createServerFn({ method: "GET" })
   });
 
 export const deleteInquiry = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data: { id: string }) => z.object({ id: z.string().uuid() }).parse(data))
-  .handler(async ({ context, data }) => {
-    await assertAdmin(context);
-    const { error } = await context.supabase.from("inquiries").delete().eq("id", data.id);
+  .inputValidator((data: unknown) =>
+    z.object({ passcode: z.string().min(1).max(100), id: z.string().uuid() }).parse(data),
+  )
+  .handler(async ({ data }) => {
+    checkPasscode(data.passcode);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("inquiries").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
