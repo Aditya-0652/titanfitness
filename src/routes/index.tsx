@@ -339,7 +339,7 @@ function Footer() {
     <footer className="border-t border-border py-10 mt-10">
       <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
         <div>© {new Date().getFullYear()} Titan Fitness, Sonipat. All rights reserved.</div>
-        <a href="/auth" className="hover:text-foreground">Owner login</a>
+        <a href="/owner" className="hover:text-foreground">Owner login</a>
       </div>
     </footer>
   );
