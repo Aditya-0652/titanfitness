@@ -305,7 +305,7 @@ function Visit() {
                 <div className="font-medium">Monday – Saturday</div>
                 <div className="text-muted-foreground text-sm">5:00 AM – 10:00 PM</div>
                 <div className="font-medium mt-2">Sunday</div>
-                <div className="text-muted-foreground text-sm">6:00 AM – 12:00 PM</div>
+                <div className="text-muted-foreground text-sm">Closed (Off day)</div>
               </div>
             </div>
             <div className="flex gap-4">
