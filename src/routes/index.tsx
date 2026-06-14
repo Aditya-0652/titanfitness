@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
-import { submitInquiry } from "@/lib/inquiries.functions";
+import { useEffect, useState } from "react";
+import { submitInquiry, submitReview, listReviews } from "@/lib/inquiries.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Phone, MapPin, Clock, Star, Dumbbell, Music2, Bike, Flame, ArrowRight } from "lucide-react";
+import { Phone, MapPin, Clock, Star, Dumbbell, Music2, Bike, Flame, ArrowRight, ExternalLink } from "lucide-react";
 
 import heroImg from "@/assets/hero-gym.jpg";
 import ptImg from "@/assets/personal-training.jpg";
