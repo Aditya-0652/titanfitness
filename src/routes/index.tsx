@@ -381,7 +381,7 @@ function InquirySection() {
             </div>
             <div>
               <Label htmlFor="phone">Phone *</Label>
-              <Input id="phone" name="phone" required maxLength={20} placeholder="98138 28549" />
+              <Input id="phone" name="phone" required maxLength={20} placeholder="9999999999" />
             </div>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
