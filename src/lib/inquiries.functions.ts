@@ -86,3 +86,35 @@ export const deleteInquiry = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+const ReviewSchema = z.object({
+  name: z.string().trim().min(1).max(60),
+  rating: z.number().int().min(1).max(5),
+  text: z.string().trim().min(5).max(500),
+});
+
+export const submitReview = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => ReviewSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("reviews").insert({
+      name: data.name,
+      rating: data.rating,
+      text: data.text,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const listReviews = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("reviews")
+      .select("id, name, rating, text, created_at")
+      .eq("approved", true)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    if (error) throw new Error(error.message);
+    return { reviews: data ?? [] };
+  });
