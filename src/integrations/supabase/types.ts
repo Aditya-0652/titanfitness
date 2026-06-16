@@ -44,6 +44,42 @@ export type Database = {
         }
         Relationships: []
       }
+      members: {
+        Row: {
+          created_at: string
+          email: string | null
+          end_date: string
+          id: string
+          name: string
+          notes: string | null
+          phone: string
+          plan: string | null
+          start_date: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          end_date: string
+          id?: string
+          name: string
+          notes?: string | null
+          phone: string
+          plan?: string | null
+          start_date?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          end_date?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string
+          plan?: string | null
+          start_date?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           approved: boolean
