@@ -161,7 +161,19 @@ function OwnerPage() {
           <p className="mt-2 text-sm text-muted-foreground">Enter your passcode to manage inquiries & members.</p>
           <div className="mt-5">
             <Label htmlFor="pc">Passcode</Label>
-            <Input id="pc" type="password" value={passcode} onChange={(e) => setPasscode(e.target.value)} autoFocus required />
+            <Input
+              id="pc"
+              type="password"
+              value={passcode}
+              onChange={(e) => setPasscode(e.target.value.trim())}
+              autoFocus
+              required
+              autoComplete="current-password"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              inputMode="text"
+            />
           </div>
           <Button type="submit" disabled={loading} className="mt-4 w-full" size="lg">
             {loading ? "Checking…" : "Unlock"}
