@@ -189,7 +189,9 @@ function OwnerPage() {
               key={k}
               onClick={() => setTab(k)}
               className={`px-4 py-3 text-sm font-medium capitalize border-b-2 transition-colors ${
-                tab === k ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+                tab === k
+                  ? "border-primary text-primary bg-primary/10"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               {k} ({k === "inquiries" ? inquiries.length : members.length})
