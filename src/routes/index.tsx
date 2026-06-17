@@ -324,7 +324,6 @@ function Visit() {
 }
 
 function InquirySection() {
-  const submit = useServerFn(submitInquiry);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -333,14 +332,12 @@ function InquirySection() {
     const fd = new FormData(e.currentTarget);
     setLoading(true);
     try {
-      await submit({
-        data: {
-          name: String(fd.get("name") || ""),
-          phone: String(fd.get("phone") || ""),
-          email: String(fd.get("email") || ""),
-          interest: String(fd.get("interest") || ""),
-          message: String(fd.get("message") || ""),
-        },
+      await submitInquiry({
+        name: String(fd.get("name") || ""),
+        phone: String(fd.get("phone") || ""),
+        email: String(fd.get("email") || ""),
+        interest: String(fd.get("interest") || ""),
+        message: String(fd.get("message") || ""),
       });
       setDone(true);
       toast.success("We'll be in touch shortly.");
