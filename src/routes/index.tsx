@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { submitInquiry, submitReview, listReviews } from "@/lib/inquiries.functions";
 import { Button } from "@/components/ui/button";
@@ -17,15 +16,6 @@ import crossfitImg from "@/assets/crossfit.jpg";
 import steamImg from "@/assets/steam.jpg";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Titan Fitness · Sonipat's Premier Gym" },
-      { name: "description", content: "Crossfit, personal training, Zumba, cycling and steam recovery at Titan Fitness, Parsvnath City, Sector 8, Sonipat. Open till 10 PM." },
-      { property: "og:title", content: "Titan Fitness · Sonipat's Premier Gym" },
-      { property: "og:description", content: "Forge the strongest version of you. Book a free trial today." },
-      { property: "og:image", content: heroImg },
-    ],
-  }),
   component: Landing,
 });
 
@@ -62,15 +52,13 @@ const GOOGLE_REVIEW_URL =
   "https://www.google.com/search?q=Titan+Fitness+Parsvnath+City+Sector+8+Sonipat#lrd=0x0:0x0,1";
 
 function Reviews() {
-  const fetchReviews = useServerFn(listReviews);
-  const submit = useServerFn(submitReview);
   const [items, setItems] = useState<Array<{ id: string; name: string; text: string; rating: number }>>(seedReviews);
   const [rating, setRating] = useState(5);
   const [loading, setLoading] = useState(false);
 
   async function reload() {
     try {
-      const { reviews } = await fetchReviews();
+      const { reviews } = await listReviews();
       if (reviews.length) setItems([...reviews, ...seedReviews]);
     } catch {}
   }
@@ -87,7 +75,7 @@ function Reviews() {
     }
     setLoading(true);
     try {
-      await submit({ data: { name, text, rating } });
+      await submitReview({ name, text, rating });
       toast.success("Thanks for the review!");
       (e.target as HTMLFormElement).reset();
       setRating(5);
