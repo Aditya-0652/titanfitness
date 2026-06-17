@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Titan Fitness</title>
+    <script>
+      // GitHub Pages SPA fallback: rewrite the requested deep-link path
+      // into a hash that index.html will read and route to client-side.
+      (function () {
+        var l = window.location;
+        var repoBase = "/";
+        // If served from a project subpath like /my-repo/, preserve it.
+        var pathSegments = l.pathname.split("/").filter(Boolean);
+        if (pathSegments.length > 0) {
+          // assume first segment is the repo base when not on a *.github.io root
+          repoBase = "/" + pathSegments[0] + "/";
+        }
+        var rest = l.pathname.slice(repoBase.length);
+        l.replace(repoBase + "?p=/" + rest + l.search + l.hash);
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

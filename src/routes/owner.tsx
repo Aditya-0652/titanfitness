@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   listInquiries, exportInquiriesXlsx, deleteInquiry,
   listMembers, addMember, updateMember, deleteMember, exportMembersXlsx,
 } from "@/lib/inquiries.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,12 +13,9 @@ import { toast } from "sonner";
 import { Download, Trash2, LogOut, Plus, Pencil, X } from "lucide-react";
 
 export const Route = createFileRoute("/owner")({
-  ssr: false,
-  head: () => ({ meta: [{ title: "Owner · Inquiries & Members" }] }),
   component: OwnerPage,
 });
 
-const STORAGE_KEY = "titan_owner_passcode";
 const today = () => new Date().toISOString().slice(0, 10);
 
 type MemberForm = {
@@ -30,20 +27,24 @@ const emptyMember = (): MemberForm => ({
   start_date: today(), end_date: "", notes: "",
 });
 
-function OwnerPage() {
-  const list = useServerFn(listInquiries);
-  const exportFn = useServerFn(exportInquiriesXlsx);
-  const del = useServerFn(deleteInquiry);
-  const listMem = useServerFn(listMembers);
-  const addMem = useServerFn(addMember);
-  const updMem = useServerFn(updateMember);
-  const delMem = useServerFn(deleteMember);
-  const exportMem = useServerFn(exportMembersXlsx);
+async function checkIsAdmin(userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error) return false;
+  return !!data;
+}
 
-  const [passcode, setPasscode] = useState<string>(() =>
-    typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) ?? "" : "",
-  );
+function OwnerPage() {
+  const [bootstrapping, setBootstrapping] = useState(true);
   const [unlocked, setUnlocked] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+
   const [tab, setTab] = useState<"inquiries" | "members">("inquiries");
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [members, setMembers] = useState<any[]>([]);
@@ -51,59 +52,68 @@ function OwnerPage() {
   const [filter, setFilter] = useState<"all" | "active" | "expired">("all");
   const [editing, setEditing] = useState<null | { id: string | null; data: MemberForm }>(null);
 
-  async function loadAll(code: string) {
+  async function loadAll() {
     setLoading(true);
     try {
-      const [a, b] = await Promise.all([
-        list({ data: { passcode: code } }),
-        listMem({ data: { passcode: code } }),
-      ]);
+      const [a, b] = await Promise.all([listInquiries(), listMembers()]);
       setInquiries(a.inquiries);
       setMembers(b.members);
-      setUnlocked(true);
-      localStorage.setItem(STORAGE_KEY, code);
     } catch (e: any) {
       toast.error(e?.message ?? "Could not load");
-      setUnlocked(false);
     } finally {
       setLoading(false);
     }
   }
 
-  async function onUnlock(e: React.FormEvent) {
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data.user && (await checkIsAdmin(data.user.id))) {
+        setUnlocked(true);
+        await loadAll();
+      }
+      setBootstrapping(false);
+    })();
+  }, []);
+
+  async function onSignIn(e: React.FormEvent) {
     e.preventDefault();
-    if (!passcode) return;
-    await loadAll(passcode);
+    setAuthLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (error) throw error;
+      const isAdmin = data.user ? await checkIsAdmin(data.user.id) : false;
+      if (!isAdmin) {
+        await supabase.auth.signOut();
+        throw new Error("This account is not an owner.");
+      }
+      setUnlocked(true);
+      setPassword("");
+      await loadAll();
+    } catch (err: any) {
+      toast.error(err?.message ?? "Sign in failed");
+    } finally {
+      setAuthLoading(false);
+    }
   }
 
-  function downloadBase64(base64: string, filename: string, mime: string) {
-    const bin = atob(base64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
-    const a = document.createElement("a");
-    a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
+  async function signOut() {
+    await supabase.auth.signOut();
+    setUnlocked(false);
+    setInquiries([]); setMembers([]);
   }
 
   async function downloadInquiries() {
-    try {
-      const { base64, filename } = await exportFn({ data: { passcode } });
-      downloadBase64(base64, filename, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    } catch (e: any) { toast.error(e?.message ?? "Export failed"); }
+    try { await exportInquiriesXlsx(); } catch (e: any) { toast.error(e?.message ?? "Export failed"); }
   }
-
   async function downloadMembers() {
-    try {
-      const { base64, filename } = await exportMem({ data: { passcode } });
-      downloadBase64(base64, filename, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    } catch (e: any) { toast.error(e?.message ?? "Export failed"); }
+    try { await exportMembersXlsx(); } catch (e: any) { toast.error(e?.message ?? "Export failed"); }
   }
 
   async function removeInquiry(id: string) {
     if (!confirm("Delete this inquiry?")) return;
     try {
-      await del({ data: { passcode, id } });
+      await deleteInquiry(id);
       setInquiries((xs) => xs.filter((x) => x.id !== id));
     } catch (e: any) { toast.error(e?.message ?? "Delete failed"); }
   }
@@ -111,7 +121,7 @@ function OwnerPage() {
   async function removeMember(id: string) {
     if (!confirm("Delete this member?")) return;
     try {
-      await delMem({ data: { passcode, id } });
+      await deleteMember(id);
       setMembers((xs) => xs.filter((x) => x.id !== id));
     } catch (e: any) { toast.error(e?.message ?? "Delete failed"); }
   }
@@ -125,58 +135,48 @@ function OwnerPage() {
     }
     try {
       if (editing.id) {
-        await updMem({ data: { passcode, id: editing.id, member: d } });
+        await updateMember(editing.id, d);
       } else {
-        await addMem({ data: { passcode, member: d } });
+        await addMember(d);
       }
-      const res = await listMem({ data: { passcode } });
+      const res = await listMembers();
       setMembers(res.members);
       setEditing(null);
       toast.success("Saved");
     } catch (e: any) { toast.error(e?.message ?? "Save failed"); }
   }
 
-  function lock() {
-    localStorage.removeItem(STORAGE_KEY);
-    setPasscode(""); setUnlocked(false);
-    setInquiries([]); setMembers([]);
-  }
-
   const t = today();
   const filteredMembers = useMemo(() => {
     if (filter === "all") return members;
-    return members.filter((m) =>
-      filter === "active" ? m.end_date >= t : m.end_date < t,
-    );
+    return members.filter((m) => (filter === "active" ? m.end_date >= t : m.end_date < t));
   }, [members, filter, t]);
   const activeCount = members.filter((m) => m.end_date >= t).length;
   const expiredCount = members.length - activeCount;
 
+  if (bootstrapping) {
+    return <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">Loading…</div>;
+  }
+
   if (!unlocked) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-12">
-        <form onSubmit={onUnlock} className="w-full max-w-sm rounded-2xl bg-card border border-border p-6 sm:p-8 shadow-sm">
-          <a href="/" className="text-sm text-muted-foreground hover:text-foreground">← Back to site</a>
+        <form onSubmit={onSignIn} className="w-full max-w-sm rounded-2xl bg-card border border-border p-6 sm:p-8 shadow-sm">
+          <a href={import.meta.env.BASE_URL} className="text-sm text-muted-foreground hover:text-foreground">← Back to site</a>
           <h1 className="mt-4 text-2xl sm:text-3xl text-display">OWNER ACCESS</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Enter your passcode to manage inquiries & members.</p>
-          <div className="mt-5">
-            <Label htmlFor="pc">Passcode</Label>
-            <Input
-              id="pc"
-              type="password"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value.trim())}
-              autoFocus
-              required
-              autoComplete="current-password"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              inputMode="text"
-            />
+          <p className="mt-2 text-sm text-muted-foreground">Sign in with your owner account.</p>
+          <div className="mt-5 space-y-3">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="pwd">Password</Label>
+              <Input id="pwd" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
           </div>
-          <Button type="submit" disabled={loading} className="mt-4 w-full" size="lg">
-            {loading ? "Checking…" : "Unlock"}
+          <Button type="submit" disabled={authLoading} className="mt-4 w-full" size="lg">
+            {authLoading ? "Signing in…" : "Sign in"}
           </Button>
         </form>
       </div>
@@ -189,10 +189,10 @@ function OwnerPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl text-display truncate">OWNER PANEL</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">Only you can see this</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{loading ? "Loading…" : "Only you can see this"}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={lock}>
-            <LogOut className="w-4 h-4" /><span className="hidden sm:inline ml-1">Lock</span>
+          <Button variant="outline" size="sm" onClick={signOut}>
+            <LogOut className="w-4 h-4" /><span className="hidden sm:inline ml-1">Sign out</span>
           </Button>
         </div>
         <div className="max-w-7xl mx-auto px-4 flex gap-1 border-t border-border">
@@ -320,7 +320,6 @@ function OwnerPage() {
               </div>
             ) : (
               <>
-                {/* Mobile cards */}
                 <div className="grid gap-3 sm:hidden">
                   {filteredMembers.map((m) => {
                     const active = m.end_date >= t;
@@ -355,7 +354,6 @@ function OwnerPage() {
                     );
                   })}
                 </div>
-                {/* Desktop table */}
                 <div className="hidden sm:block rounded-2xl border border-border bg-card overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
