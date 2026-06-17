@@ -3,7 +3,7 @@ import { z } from "zod";
 
 // Simple owner passcode. The owner uses this on /owner to see inquiries.
 // Change here if you ever want to rotate it.
-const OWNER_PASSCODE = "titan-owner-2026";
+const OWNER_PASSCODE = "titan-28549";
 
 const InquirySchema = z.object({
   name: z.string().trim().min(1).max(100),
