@@ -29,6 +29,8 @@ jobs:
         run: bun run build
       - name: SPA fallback (404 -> index)
         run: cp dist/index.html dist/404.html
+      - name: Verify GitHub Pages SPA fallback
+        run: node scripts/verify-spa-fallback.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
